@@ -1,0 +1,28 @@
+# Render Blueprint — provisions the backend service.
+# DB is on Neon, so it's not modeled here; just plug in the env vars below.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: pharmatrack-elogbook
+    runtime: docker
+    plan: starter           # or "free" for hobby
+    region: oregon          # change if your Neon region is elsewhere
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    envVars:
+      - key: DB_URL
+        sync: false         # set in dashboard: jdbc:postgresql://HOST/DB?sslmode=require
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true # Render generates a 256-bit secret on first deploy
+      - key: CORS_ORIGINS
+        sync: false         # e.g. https://your-frontend.vercel.app
+      - key: APP_ADMIN_DEFAULT_PASSWORD
+        sync: false         # only used on the very first boot, then ignored
+      - key: JAVA_OPTS
+        value: -XX:MaxRAMPercentage=75 -XX:+UseG1GC
